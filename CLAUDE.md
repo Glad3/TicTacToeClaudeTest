@@ -15,7 +15,7 @@ This is a Tic Tac Toe game implementation project. The repository is currently i
 - `.git/` - Git repository infrastructure
 
 ### Development Status
-The project is in its **initial setup phase**. No game implementation currently exists.
+The project is in its **initial setup phase**. Technology stack has been defined (PHP backend + React/TypeScript frontend). Next steps: create project structure and implement core functionality.
 
 ## Expected Repository Structure
 
@@ -25,22 +25,50 @@ When fully implemented, the repository should follow this structure:
 TicTacToeClaudeTest/
 ├── README.md                 # Project overview and usage instructions
 ├── CLAUDE.md                 # This file - AI assistant guidelines
-├── src/                      # Source code directory
-│   ├── game/                 # Game logic
-│   │   ├── board.js/py/etc  # Board state management
-│   │   ├── player.js/py/etc # Player logic
-│   │   └── game.js/py/etc   # Main game controller
-│   ├── ui/                   # User interface components
-│   │   ├── cli.js/py/etc    # Command-line interface
-│   │   └── web/             # Web interface (if applicable)
-│   └── utils/                # Utility functions
-├── tests/                    # Test files
-│   ├── unit/                 # Unit tests
-│   └── integration/          # Integration tests
-├── docs/                     # Additional documentation
-├── package.json              # Dependencies (if Node.js)
-├── requirements.txt          # Dependencies (if Python)
-└── .gitignore               # Git ignore rules
+├── .gitignore                # Git ignore rules
+│
+├── backend/                  # PHP Backend
+│   ├── composer.json         # PHP dependencies
+│   ├── composer.lock
+│   ├── public/
+│   │   └── index.php         # API entry point
+│   ├── src/
+│   │   ├── Game/
+│   │   │   ├── Board.php     # Board state management
+│   │   │   ├── Player.php    # Player logic
+│   │   │   └── GameController.php  # Main game controller
+│   │   ├── Api/
+│   │   │   └── routes.php    # API route definitions
+│   │   └── Utils/
+│   │       └── helpers.php   # Utility functions
+│   └── tests/
+│       ├── Unit/             # PHPUnit tests
+│       └── Integration/
+│
+├── frontend/                 # React + TypeScript Frontend
+│   ├── package.json          # npm dependencies
+│   ├── tsconfig.json         # TypeScript configuration
+│   ├── vite.config.ts        # Vite build configuration
+│   ├── index.html
+│   ├── src/
+│   │   ├── main.tsx          # React entry point
+│   │   ├── App.tsx           # Main App component
+│   │   ├── components/
+│   │   │   ├── Board.tsx     # Game board component
+│   │   │   ├── Cell.tsx      # Individual cell component
+│   │   │   └── GameStatus.tsx # Win/draw display
+│   │   ├── hooks/
+│   │   │   └── useGame.ts    # Game state hook
+│   │   ├── types/
+│   │   │   └── game.ts       # TypeScript interfaces
+│   │   ├── services/
+│   │   │   └── api.ts        # API client
+│   │   └── styles/
+│   │       └── game.css      # Game styles
+│   └── tests/
+│       └── components/       # React component tests
+│
+└── docs/                     # Additional documentation
 ```
 
 ## Development Workflows
@@ -79,10 +107,21 @@ TicTacToeClaudeTest/
 - Prefer composition over inheritance
 
 **Naming Conventions:**
-- Functions/methods: `camelCase` (JS) or `snake_case` (Python)
-- Classes: `PascalCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Private members: prefix with `_` (Python) or use `#` (modern JS)
+
+*PHP (Backend):*
+- Classes: `PascalCase` (e.g., `GameController`, `Board`)
+- Methods: `camelCase` (e.g., `makeMove`, `checkWinner`)
+- Variables: `camelCase` (e.g., `$currentPlayer`, `$boardState`)
+- Constants: `UPPER_SNAKE_CASE` (e.g., `PLAYER_X`, `WIN_CONDITIONS`)
+- Files: `PascalCase.php` matching class name (e.g., `Board.php`)
+
+*TypeScript/React (Frontend):*
+- Components: `PascalCase` (e.g., `Board`, `GameStatus`)
+- Functions/hooks: `camelCase` (e.g., `useGame`, `handleCellClick`)
+- Variables: `camelCase` (e.g., `currentPlayer`, `isGameOver`)
+- Constants: `UPPER_SNAKE_CASE` (e.g., `API_BASE_URL`)
+- Interfaces/Types: `PascalCase` (e.g., `GameState`, `Player`)
+- Files: `PascalCase.tsx` for components, `camelCase.ts` for utilities
 
 **Game-Specific Conventions:**
 - Board positions: Use 0-indexed coordinates (row, col) or 0-8 for flat array
@@ -251,16 +290,25 @@ Updated to properly check both diagonals.
 
 ## Technology Stack
 
-**Current:** Not yet determined
+**Backend:** PHP
+**Frontend:** React with TypeScript
 
-**Common Options for Tic Tac Toe:**
-- **JavaScript/Node.js**: Good for web-based implementations
-- **Python**: Excellent for CLI and learning projects
-- **TypeScript**: Adds type safety to JavaScript
-- **React**: For interactive web UI
-- **HTML/CSS/Vanilla JS**: For simple web version
+**Architecture:**
+- PHP API backend handling game logic and state management
+- React/TypeScript frontend for interactive UI
+- RESTful API communication between frontend and backend
 
-**Recommendation:** Confirm with user before implementing.
+**Key Technologies:**
+- **PHP 8.x**: Backend API, game logic, session management
+- **React 18+**: Component-based UI framework
+- **TypeScript**: Type-safe frontend development
+- **Composer**: PHP dependency management
+- **npm/Vite**: Frontend build tooling
+
+**Why This Stack:**
+- PHP provides simple, reliable backend logic
+- React offers responsive, interactive game UI
+- TypeScript catches errors at compile time and improves maintainability
 
 ## Game Implementation Checklist
 
@@ -300,18 +348,27 @@ When implementing the Tic Tac Toe game, ensure these components:
 ### Essential Commands
 
 ```bash
-# Check current status
+# Git
 git status
-
-# View recent commits
 git log --oneline -5
 
-# Run tests (once implemented)
-npm test          # Node.js
-python -m pytest  # Python
+# Backend (PHP) - run from /backend directory
+composer install              # Install PHP dependencies
+composer dump-autoload        # Regenerate autoloader
+./vendor/bin/phpunit          # Run PHP tests
+php -S localhost:8000 -t public  # Start PHP dev server
 
-# View file tree
-ls -R src/
+# Frontend (React/TS) - run from /frontend directory
+npm install                   # Install npm dependencies
+npm run dev                   # Start Vite dev server
+npm run build                 # Production build
+npm run test                  # Run frontend tests
+npm run lint                  # Run ESLint
+npm run type-check            # Run TypeScript compiler check
+
+# Full Stack Development
+# Terminal 1: cd backend && php -S localhost:8000 -t public
+# Terminal 2: cd frontend && npm run dev
 ```
 
 ### File References
