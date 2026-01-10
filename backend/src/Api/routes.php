@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace TicTacToe\Api;
+
 use TicTacToe\Game\GameController;
 
 /**
