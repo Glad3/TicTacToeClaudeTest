@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace TicTacToe\Api;
+
 use TicTacToe\Game\GameController;
 
 /**
@@ -124,14 +126,7 @@ class Router
         }
 
         if (isset($_SESSION['game_state'])) {
-            $state = $_SESSION['game_state'];
-            $this->game->resetGame();
-
-            foreach ($state['board'] as $position => $marker) {
-                if ($marker !== null) {
-                    $this->game->getBoard()->setCell($position, $marker);
-                }
-            }
+            $this->game->restoreState($_SESSION['game_state']);
         }
     }
 

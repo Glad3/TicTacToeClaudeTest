@@ -149,4 +149,24 @@ class GameController
     {
         return $this->board;
     }
+
+    /**
+     * Restore game state from a saved state array
+     *
+     * @param array{board: array<int, string|null>, currentPlayer: string, state: string, winner: string|null} $state
+     */
+    public function restoreState(array $state): void
+    {
+        $this->board->reset();
+
+        foreach ($state['board'] as $position => $marker) {
+            if ($marker !== null) {
+                $this->board->setCell($position, $marker);
+            }
+        }
+
+        $this->currentPlayer = $state['currentPlayer'];
+        $this->state = $state['state'];
+        $this->winner = $state['winner'];
+    }
 }
