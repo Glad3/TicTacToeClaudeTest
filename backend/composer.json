@@ -1,0 +1,25 @@
+{
+    "name": "glad3/tictactoe-backend",
+    "description": "PHP backend for Tic Tac Toe game",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TicTacToe\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TicTacToe\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
