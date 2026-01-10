@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: update CLAUDE.md with PHP + React/TypeScript stack\n\n- Define technology stack: PHP backend, React/TypeScript frontend\n- Update repository structure for backend/ and frontend/ directories\n- Add PHP and TypeScript naming conventions\n- Update essential commands for Composer, npm, Vite, PHPUnit\n- Update development status to reflect defined stack\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(where:*)",
+      "Bash(gh:*)",
+      "Bash(cmd /c \"gh --version\")",
+      "Bash(cmd /c \"where gh\")",
+      "Bash(powershell -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' --version\")",
+      "Bash(powershell -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' pr create --base main --head claude/claude-md-mk5qrnm1zq38ye6z-iUp9e --title ''docs: create comprehensive CLAUDE.md guide for AI assistants'' --body ''## Summary\n- Create CLAUDE.md file with comprehensive AI assistant guidelines for the TicTacToe project\n- Define technology stack: PHP backend with React/TypeScript frontend\n- Document expected repository structure with backend/ and frontend/ directories\n- Establish coding conventions, naming standards, and git workflow practices\n\n## Test plan\n- [ ] Review CLAUDE.md content for accuracy and completeness\n- [ ] Verify technology stack decisions align with project goals\n- [ ] Confirm repository structure matches intended architecture\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)''\")"
+    ]
+  }
+}
