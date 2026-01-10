@@ -1,0 +1,56 @@
+.game-status {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.game-status__message {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  min-height: 2rem;
+}
+
+.game-status__message--error {
+  color: #ff6b6b;
+}
+
+.game-status__message--gameover {
+  color: #4ecdc4;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.game-status__reset-btn {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #eaeaea;
+  background-color: #e94560;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.game-status__reset-btn:hover:not(:disabled) {
+  background-color: #d63850;
+  transform: scale(1.05);
+}
+
+.game-status__reset-btn:focus {
+  outline: 3px solid #0cc0df;
+  outline-offset: 2px;
+}
+
+.game-status__reset-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
