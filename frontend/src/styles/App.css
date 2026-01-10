@@ -1,0 +1,21 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.app__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #eaeaea;
+  margin-bottom: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 400px) {
+  .app__title {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+}
