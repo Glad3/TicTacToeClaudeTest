@@ -215,4 +215,34 @@ class RoomManagerTest extends TestCase
         $retrieved = $this->manager->getRoom($room1->getRoomId());
         $this->assertSame($room1, $retrieved);
     }
+
+    public function testCleanupFinishedRoomsFaster(): void
+    {
+        // Create rooms with different statuses
+        $activeRoom = $this->manager->createRoom();
+        $finishedRoom = $this->manager->createRoom();
+
+        // Set one room as finished
+        $finishedRoom->setStatus('finished');
+
+        // Make finished room inactive for 6 minutes (> 5 min timeout)
+        $reflection = new \ReflectionClass($finishedRoom);
+        $property = $reflection->getProperty('lastActivity');
+        $property->setAccessible(true);
+        $property->setValue($finishedRoom, time() - 360); // 6 minutes ago
+
+        // Make active room inactive for 10 minutes (< 1 hour timeout)
+        $reflectionActive = new \ReflectionClass($activeRoom);
+        $propertyActive = $reflectionActive->getProperty('lastActivity');
+        $propertyActive->setAccessible(true);
+        $propertyActive->setValue($activeRoom, time() - 600); // 10 minutes ago
+
+        $cleaned = $this->manager->cleanupInactiveRooms();
+
+        // Only finished room should be cleaned (6 min > 5 min)
+        // Active room should remain (10 min < 1 hour)
+        $this->assertEquals(1, $cleaned);
+        $this->assertFalse($this->manager->roomExists($finishedRoom->getRoomId()));
+        $this->assertTrue($this->manager->roomExists($activeRoom->getRoomId()));
+    }
 }
