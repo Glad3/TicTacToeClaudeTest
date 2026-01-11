@@ -1,0 +1,232 @@
+.game-room {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.game-room__container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+}
+
+.game-room__header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.game-room__title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 0.5rem;
+}
+
+.game-room__room-id {
+  font-size: 0.9rem;
+  color: #666;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+}
+
+.game-room__polling-error {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.game-room__waiting {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+  color: #0d47a1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.game-room__waiting-text {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.game-room__players {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.game-room__player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.game-room__player-marker {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 4px;
+  border: 2px solid #667eea;
+}
+
+.game-room__player-name {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Loading state */
+.game-room__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.game-room__spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(102, 126, 234, 0.3);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.game-room__loading-text {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Error state */
+.game-room__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.game-room__error-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #d32f2f;
+  margin: 0;
+}
+
+.game-room__error-message {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.game-room__error-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  margin-top: 1rem;
+}
+
+.game-room__error-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.game-room__error-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+.game-room__error-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .game-room {
+    padding: 1rem;
+  }
+
+  .game-room__container {
+    padding: 1.5rem;
+  }
+
+  .game-room__title {
+    font-size: 1.5rem;
+  }
+
+  .game-room__players {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .game-room__player {
+    justify-content: center;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .game-room__spinner {
+    animation: none;
+  }
+
+  .game-room__error-button {
+    transition: none;
+  }
+
+  .game-room__error-button:hover {
+    transform: none;
+  }
+
+  .game-room__error-button:active {
+    transform: none;
+  }
+}
