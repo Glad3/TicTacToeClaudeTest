@@ -134,4 +134,44 @@ class Router
     {
         $_SESSION['game_state'] = $this->game->getGameState();
     }
+
+    /**
+     * Get or generate a unique player ID from the session
+     */
+    private function getPlayerId(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['player_id'])) {
+            $_SESSION['player_id'] = bin2hex(random_bytes(16));
+        }
+
+        return $_SESSION['player_id'];
+    }
+
+    /**
+     * Get the player name from the session
+     */
+    private function getPlayerName(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        return $_SESSION['player_name'] ?? 'Guest';
+    }
+
+    /**
+     * Set the player name in the session
+     */
+    private function setPlayerName(string $name): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION['player_name'] = $name;
+    }
 }

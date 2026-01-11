@@ -46,7 +46,7 @@ class GameController
     /**
      * @return array{success: bool, message: string, state: array}
      */
-    public function makeMove(int $position): array
+    public function makeMove(int $position, ?string $playerId = null, ?string $playerMarker = null): array
     {
         if ($this->state !== self::STATE_PLAYING) {
             return [
@@ -54,6 +54,17 @@ class GameController
                 'message' => 'Game is already over',
                 'state' => $this->getGameState(),
             ];
+        }
+
+        // Validate player's turn if player context is provided
+        if ($playerId !== null && $playerMarker !== null) {
+            if (!$this->canPlayerMove($playerMarker)) {
+                return [
+                    'success' => false,
+                    'message' => 'Not your turn',
+                    'state' => $this->getGameState(),
+                ];
+            }
         }
 
         if (!$this->board->setCell($position, $this->currentPlayer)) {
@@ -115,6 +126,14 @@ class GameController
     public function checkDraw(): bool
     {
         return $this->board->isFull() && $this->checkWinner() === null;
+    }
+
+    /**
+     * Check if a player with the given marker can make a move
+     */
+    public function canPlayerMove(string $playerMarker): bool
+    {
+        return $this->state === self::STATE_PLAYING && $this->currentPlayer === $playerMarker;
     }
 
     /**
