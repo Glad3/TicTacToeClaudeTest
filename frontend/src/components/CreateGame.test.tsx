@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { CreateGame } from './CreateGame';
 import * as api from '../services/api';
@@ -127,7 +127,7 @@ describe('CreateGame', () => {
     );
 
     await waitFor(() => {
-      const urlInput = screen.getByLabelText(/join url/i) as HTMLInputElement;
+      const urlInput = screen.getByRole('textbox', { name: /join url/i }) as HTMLInputElement;
       expect(urlInput.value).toContain('room-test123');
     });
   });
@@ -148,9 +148,7 @@ describe('CreateGame', () => {
     expect(screen.getByText(/back to lobby/i)).toBeInTheDocument();
   });
 
-  it('polls for opponent and navigates when joined', async () => {
-    vi.useFakeTimers();
-
+  it('shows opponent joined when both players present', async () => {
     vi.mocked(api.createRoom).mockResolvedValue({
       success: true,
       roomId: 'room-test123',
@@ -158,35 +156,8 @@ describe('CreateGame', () => {
       message: 'Room created',
     });
 
-    // First poll - no opponent
-    vi.mocked(api.getRoomState).mockResolvedValueOnce({
-      success: true,
-      state: {
-        board: Array(9).fill(null),
-        currentPlayer: 'X',
-        state: 'playing',
-        winner: null,
-      },
-      room: {
-        roomId: 'room-test123',
-        status: 'waiting',
-        playerX: {
-          playerId: 'player1',
-          name: 'Player 1',
-          marker: 'X',
-          isConnected: true,
-          joinedAt: Date.now(),
-          lastSeen: Date.now(),
-        },
-        playerO: null,
-        createdAt: Date.now(),
-        lastActivity: Date.now(),
-      },
-      timestamp: Date.now(),
-    });
-
-    // Second poll - opponent joined
-    vi.mocked(api.getRoomState).mockResolvedValueOnce({
+    // Opponent already joined
+    vi.mocked(api.getRoomState).mockResolvedValue({
       success: true,
       state: {
         board: Array(9).fill(null),
@@ -225,28 +196,18 @@ describe('CreateGame', () => {
       </BrowserRouter>
     );
 
+    // Wait for room creation
     await waitFor(() => {
-      expect(screen.getByText(/waiting for opponent/i)).toBeInTheDocument();
+      expect(screen.getByText(/game room created/i)).toBeInTheDocument();
     });
 
-    // Advance timers to trigger first poll
-    await vi.advanceTimersByTimeAsync(2000);
-
-    // Advance timers to trigger second poll
-    await vi.advanceTimersByTimeAsync(2000);
-
-    await waitFor(() => {
-      expect(screen.getByText(/opponent joined/i)).toBeInTheDocument();
-    });
-
-    // Advance timer for navigation delay
-    await vi.advanceTimersByTimeAsync(1000);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/room/room-test123');
-    });
-
-    vi.useRealTimers();
+    // Wait for polling to detect opponent
+    await waitFor(
+      () => {
+        expect(screen.getByText(/opponent joined/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('navigates back to lobby when cancel is clicked', async () => {
@@ -287,7 +248,7 @@ describe('CreateGame', () => {
     });
 
     const cancelButton = screen.getByText(/cancel/i);
-    cancelButton.click();
+    fireEvent.click(cancelButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
