@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TicTacToe\Api;
 
 use TicTacToe\Game\GameController;
+use TicTacToe\Game\RoomManager;
+use TicTacToe\Game\PlayerInfo;
 
 /**
  * Simple router for the Tic Tac Toe API
@@ -12,10 +14,12 @@ use TicTacToe\Game\GameController;
 class Router
 {
     private GameController $game;
+    private RoomManager $roomManager;
 
     public function __construct()
     {
         $this->game = new GameController();
+        $this->roomManager = new RoomManager();
         $this->loadGameState();
     }
 
@@ -52,8 +56,34 @@ class Router
      */
     private function route(string $method, string $uri): array
     {
+        // Room API endpoints
+        if (preg_match('#^/api/rooms/([^/]+)/(.+)$#', $uri, $matches)) {
+            $roomId = $matches[1];
+            $action = $matches[2];
+
+            return match (true) {
+                $action === 'join' && $method === 'POST' => $this->joinRoom($roomId),
+                $action === 'leave' && $method === 'POST' => $this->leaveRoom($roomId),
+                $action === 'move' && $method === 'POST' => $this->makeRoomMove($roomId),
+                $action === 'reset' && $method === 'POST' => $this->resetRoom($roomId),
+                $action === 'state' && $method === 'GET' => $this->getRoomState($roomId),
+                default => $this->notFound(),
+            };
+        }
+
+        if (preg_match('#^/api/rooms/([^/]+)$#', $uri, $matches)) {
+            $roomId = $matches[1];
+            return match ($method) {
+                'GET' => $this->getRoom($roomId),
+                default => $this->notFound(),
+            };
+        }
+
+        // Standard match for other endpoints
         return match (true) {
             $uri === '/api/health' && $method === 'GET' => $this->health(),
+            $uri === '/api/rooms' && $method === 'POST' => $this->createRoom(),
+            $uri === '/api/rooms/stats' && $method === 'GET' => $this->getRoomStats(),
             $uri === '/api/game' && $method === 'GET' => $this->getGame(),
             $uri === '/api/game/move' && $method === 'POST' => $this->makeMove(),
             $uri === '/api/game/reset' && $method === 'POST' => $this->resetGame(),
@@ -116,6 +146,288 @@ class Router
         return [
             'success' => false,
             'message' => 'Endpoint not found',
+        ];
+    }
+
+    /**
+     * POST /api/rooms - Create a new game room
+     * @return array{success: bool, roomId: string, joinUrl: string, message: string}
+     */
+    private function createRoom(): array
+    {
+        $room = $this->roomManager->createRoom();
+        $playerId = $this->getPlayerId();
+        $playerName = $this->getPlayerName();
+
+        // Creator becomes Player X
+        $player = new PlayerInfo($playerId, $playerName, 'X');
+        $room->addPlayer($player);
+
+        http_response_code(201);
+        return [
+            'success' => true,
+            'roomId' => $room->getRoomId(),
+            'joinUrl' => '/game?room=' . $room->getRoomId(),
+            'message' => 'Room created successfully',
+        ];
+    }
+
+    /**
+     * GET /api/rooms/:roomId - Get room information
+     * @return array{success: bool, room: array}
+     */
+    private function getRoom(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'room' => $room->toArray(),
+            'gameState' => $room->getGame()->getGameState(),
+        ];
+    }
+
+    /**
+     * POST /api/rooms/:roomId/join - Join an existing room
+     * @return array{success: bool, message: string, marker?: string}
+     */
+    private function joinRoom(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        $playerId = $this->getPlayerId();
+
+        // Check if player is already in the room
+        if ($room->hasPlayer($playerId)) {
+            $marker = $room->getPlayerMarker($playerId);
+            return [
+                'success' => true,
+                'message' => 'Already in room',
+                'marker' => $marker,
+                'room' => $room->toArray(),
+                'gameState' => $room->getGame()->getGameState(),
+            ];
+        }
+
+        // Get player name from request body or session
+        $input = json_decode(file_get_contents('php://input'), true);
+        $playerName = $input['name'] ?? $this->getPlayerName();
+
+        // Update session name if provided
+        if (isset($input['name'])) {
+            $this->setPlayerName($playerName);
+        }
+
+        // Determine marker based on which slot is empty
+        $marker = $room->getPlayerX() === null ? 'X' : 'O';
+        $player = new PlayerInfo($playerId, $playerName, $marker);
+
+        $success = $room->addPlayer($player);
+
+        if (!$success) {
+            http_response_code(403);
+            return [
+                'success' => false,
+                'error' => 'ROOM_FULL',
+                'message' => 'Room is full',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Joined room successfully',
+            'marker' => $marker,
+            'room' => $room->toArray(),
+            'gameState' => $room->getGame()->getGameState(),
+        ];
+    }
+
+    /**
+     * POST /api/rooms/:roomId/leave - Leave a room
+     * @return array{success: bool, message: string}
+     */
+    private function leaveRoom(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        // For now, we'll mark the room status as finished
+        // In future, could handle player disconnection more gracefully
+        $room->setStatus('finished');
+
+        return [
+            'success' => true,
+            'message' => 'Left room successfully',
+        ];
+    }
+
+    /**
+     * POST /api/rooms/:roomId/move - Make a move in the room
+     * @return array{success: bool, message: string, state: array}
+     */
+    private function makeRoomMove(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['position']) || !is_int($input['position'])) {
+            http_response_code(400);
+            return [
+                'success' => false,
+                'error' => 'INVALID_INPUT',
+                'message' => 'Position is required and must be an integer',
+            ];
+        }
+
+        $playerId = $this->getPlayerId();
+
+        if (!$room->hasPlayer($playerId)) {
+            http_response_code(403);
+            return [
+                'success' => false,
+                'error' => 'NOT_IN_ROOM',
+                'message' => 'You are not in this room',
+            ];
+        }
+
+        if (!$room->canPlayerMove($playerId, $input['position'])) {
+            http_response_code(403);
+            return [
+                'success' => false,
+                'error' => 'NOT_YOUR_TURN',
+                'message' => 'Not your turn',
+            ];
+        }
+
+        $marker = $room->getPlayerMarker($playerId);
+        $result = $room->getGame()->makeMove($input['position'], $playerId, $marker);
+
+        // Update room activity
+        $room->updateActivity();
+
+        // Update room status if game is over
+        if ($result['state']['state'] !== 'playing') {
+            $room->setStatus('finished');
+        }
+
+        return $result;
+    }
+
+    /**
+     * POST /api/rooms/:roomId/reset - Reset the game in the room
+     * @return array{success: bool, message: string, state: array}
+     */
+    private function resetRoom(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        $playerId = $this->getPlayerId();
+
+        if (!$room->hasPlayer($playerId)) {
+            http_response_code(403);
+            return [
+                'success' => false,
+                'error' => 'NOT_IN_ROOM',
+                'message' => 'You are not in this room',
+            ];
+        }
+
+        // Reset the game
+        $room->getGame()->resetGame();
+        $room->setStatus('playing');
+        $room->updateActivity();
+
+        return [
+            'success' => true,
+            'message' => 'Game reset successfully',
+            'state' => $room->getGame()->getGameState(),
+        ];
+    }
+
+    /**
+     * GET /api/rooms/:roomId/state - Get current game state
+     * @return array{success: bool, state: array, timestamp: int}
+     */
+    private function getRoomState(string $roomId): array
+    {
+        $room = $this->roomManager->getRoom($roomId);
+
+        if ($room === null) {
+            http_response_code(404);
+            return [
+                'success' => false,
+                'error' => 'ROOM_NOT_FOUND',
+                'message' => 'Room not found',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'state' => $room->getGame()->getGameState(),
+            'room' => $room->toArray(),
+            'timestamp' => time(),
+        ];
+    }
+
+    /**
+     * GET /api/rooms/stats - Get room statistics
+     * @return array{success: bool, stats: array}
+     */
+    private function getRoomStats(): array
+    {
+        return [
+            'success' => true,
+            'stats' => [
+                'total' => $this->roomManager->getRoomCount(),
+                'active' => $this->roomManager->getActiveRoomCount(),
+                'waiting' => $this->roomManager->getWaitingRoomCount(),
+                'finished' => $this->roomManager->getFinishedRoomCount(),
+            ],
         ];
     }
 
