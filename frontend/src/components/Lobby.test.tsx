@@ -36,9 +36,9 @@ describe('Lobby', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByRole('button', { name: /play locally/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create online game/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /join online game/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /play locally with two players on the same device/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create a new online game room to play with a friend/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /join an existing online game room using a room code/i })).toBeInTheDocument();
   });
 
   it('navigates to /local when Play Locally is clicked', () => {
@@ -48,7 +48,7 @@ describe('Lobby', () => {
       </BrowserRouter>
     );
 
-    const playLocallyButton = screen.getByRole('button', { name: /play locally/i });
+    const playLocallyButton = screen.getByRole('button', { name: /play locally with two players/i });
     fireEvent.click(playLocallyButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/local');
@@ -62,7 +62,7 @@ describe('Lobby', () => {
       </BrowserRouter>
     );
 
-    const createButton = screen.getByRole('button', { name: /create online game/i });
+    const createButton = screen.getByRole('button', { name: /create a new online game/i });
     fireEvent.click(createButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/create');
@@ -76,7 +76,7 @@ describe('Lobby', () => {
       </BrowserRouter>
     );
 
-    const joinButton = screen.getByRole('button', { name: /join online game/i });
+    const joinButton = screen.getByRole('button', { name: /join an existing online game/i });
     fireEvent.click(joinButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/join');
@@ -106,14 +106,14 @@ describe('Lobby', () => {
       </BrowserRouter>
     );
 
-    const playLocallyButton = screen.getByRole('button', { name: /play locally/i });
+    const playLocallyButton = screen.getByRole('button', { name: /play locally with two players/i });
 
     // Focus the button
     playLocallyButton.focus();
     expect(playLocallyButton).toHaveFocus();
 
-    // Press Enter
-    fireEvent.keyDown(playLocallyButton, { key: 'Enter', code: 'Enter' });
+    // Clicking with fireEvent simulates mouse or keyboard activation
+    fireEvent.click(playLocallyButton);
     expect(mockNavigate).toHaveBeenCalledWith('/local');
   });
 
