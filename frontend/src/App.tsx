@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Lobby } from './components/Lobby';
 import { LocalGame } from './components/LocalGame';
 import { CreateGame } from './components/CreateGame';
+import { GameRoom } from './components/GameRoom';
+import { NotFound } from './components/NotFound';
 import './styles/App.css';
 
 function App() {
@@ -12,7 +14,8 @@ function App() {
         <Route path="/local" element={<LocalGame />} />
         <Route path="/create" element={<CreateGame />} />
         <Route path="/join" element={<div>Join Online Game (Coming Soon)</div>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/room/:roomId" element={<GameRoom />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
