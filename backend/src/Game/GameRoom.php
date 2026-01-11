@@ -120,6 +120,50 @@ class GameRoom
         return null;
     }
 
+    /**
+     * Add a player to the room
+     * First player becomes X, second player becomes O
+     * Returns true if added successfully, false if room is full
+     */
+    public function addPlayer(PlayerInfo $player): bool
+    {
+        // First player becomes X
+        if ($this->playerX === null) {
+            $this->setPlayerX($player);
+            return true;
+        }
+
+        // Second player becomes O
+        if ($this->playerO === null) {
+            $this->setPlayerO($player);
+            return true;
+        }
+
+        // Room is full
+        return false;
+    }
+
+    /**
+     * Check if a player can make a move in this room
+     * Validates: player is in room, it's their turn, game is playing
+     */
+    public function canPlayerMove(string $playerId, int $position): bool
+    {
+        // Check if player is in this room
+        if (!$this->hasPlayer($playerId)) {
+            return false;
+        }
+
+        // Get player's marker
+        $marker = $this->getPlayerMarker($playerId);
+        if ($marker === null) {
+            return false;
+        }
+
+        // Check if it's their turn
+        return $this->game->canPlayerMove($marker);
+    }
+
     public function toArray(): array
     {
         return [
