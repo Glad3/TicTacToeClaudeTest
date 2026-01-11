@@ -11,6 +11,7 @@ class RoomManager
 {
     private array $rooms = [];
     private const ROOM_TIMEOUT = 3600; // 1 hour in seconds
+    private const FINISHED_ROOM_TIMEOUT = 300; // 5 minutes in seconds
 
     public function createRoom(): GameRoom
     {
@@ -47,7 +48,12 @@ class RoomManager
         $cleaned = 0;
 
         foreach ($this->rooms as $roomId => $room) {
-            if (($now - $room->getLastActivity()) > self::ROOM_TIMEOUT) {
+            // Use shorter timeout for finished games
+            $timeout = $room->getStatus() === 'finished'
+                ? self::FINISHED_ROOM_TIMEOUT
+                : self::ROOM_TIMEOUT;
+
+            if (($now - $room->getLastActivity()) > $timeout) {
                 $this->deleteRoom($roomId);
                 $cleaned++;
             }
