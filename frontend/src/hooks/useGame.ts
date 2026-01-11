@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { GameState, Player } from '../types/game';
+import { GameState } from '../types/game';
 import * as api from '../services/api';
 
 const INITIAL_STATE: GameState = {
