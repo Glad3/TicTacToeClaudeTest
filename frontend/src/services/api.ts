@@ -1,4 +1,4 @@
-import { ApiResponse, GameState, MoveRequest } from '../types/game';
+import { ApiResponse, GameState, MoveRequest, CreateRoomResponse, RoomStateResponse } from '../types/game';
 
 const API_BASE_URL = '/api';
 
@@ -40,4 +40,14 @@ export async function resetGame(): Promise<ApiResponse<GameState>> {
 
 export async function checkHealth(): Promise<{ status: string }> {
   return fetchApi<{ status: string }>('/health');
+}
+
+export async function createRoom(): Promise<CreateRoomResponse> {
+  return fetchApi<CreateRoomResponse>('/rooms', {
+    method: 'POST',
+  });
+}
+
+export async function getRoomState(roomId: string): Promise<RoomStateResponse> {
+  return fetchApi<RoomStateResponse>(`/rooms/${roomId}/state`);
 }
