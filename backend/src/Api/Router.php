@@ -56,7 +56,22 @@ class Router
      */
     private function route(string $method, string $uri): array
     {
-        // Room API endpoints
+        // Check exact matches first to avoid regex conflicts
+        $exactMatch = match (true) {
+            $uri === '/api/health' && $method === 'GET' => $this->health(),
+            $uri === '/api/rooms' && $method === 'POST' => $this->createRoom(),
+            $uri === '/api/rooms/stats' && $method === 'GET' => $this->getRoomStats(),
+            $uri === '/api/game' && $method === 'GET' => $this->getGame(),
+            $uri === '/api/game/move' && $method === 'POST' => $this->makeMove(),
+            $uri === '/api/game/reset' && $method === 'POST' => $this->resetGame(),
+            default => null,
+        };
+
+        if ($exactMatch !== null) {
+            return $exactMatch;
+        }
+
+        // Room API endpoints with parameters
         if (preg_match('#^/api/rooms/([^/]+)/(.+)$#', $uri, $matches)) {
             $roomId = $matches[1];
             $action = $matches[2];
@@ -79,16 +94,7 @@ class Router
             };
         }
 
-        // Standard match for other endpoints
-        return match (true) {
-            $uri === '/api/health' && $method === 'GET' => $this->health(),
-            $uri === '/api/rooms' && $method === 'POST' => $this->createRoom(),
-            $uri === '/api/rooms/stats' && $method === 'GET' => $this->getRoomStats(),
-            $uri === '/api/game' && $method === 'GET' => $this->getGame(),
-            $uri === '/api/game/move' && $method === 'POST' => $this->makeMove(),
-            $uri === '/api/game/reset' && $method === 'POST' => $this->resetGame(),
-            default => $this->notFound(),
-        };
+        return $this->notFound();
     }
 
     /**
