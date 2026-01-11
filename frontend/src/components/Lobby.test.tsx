@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Lobby } from './Lobby';
 
@@ -41,9 +41,7 @@ describe('Lobby', () => {
     expect(screen.getByRole('button', { name: /join online game/i })).toBeInTheDocument();
   });
 
-  it('navigates to /local when Play Locally is clicked', async () => {
-    const user = userEvent.setup();
-
+  it('navigates to /local when Play Locally is clicked', () => {
     render(
       <BrowserRouter>
         <Lobby />
@@ -51,15 +49,13 @@ describe('Lobby', () => {
     );
 
     const playLocallyButton = screen.getByRole('button', { name: /play locally/i });
-    await user.click(playLocallyButton);
+    fireEvent.click(playLocallyButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/local');
     expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
-  it('navigates to /create when Create Online Game is clicked', async () => {
-    const user = userEvent.setup();
-
+  it('navigates to /create when Create Online Game is clicked', () => {
     render(
       <BrowserRouter>
         <Lobby />
@@ -67,15 +63,13 @@ describe('Lobby', () => {
     );
 
     const createButton = screen.getByRole('button', { name: /create online game/i });
-    await user.click(createButton);
+    fireEvent.click(createButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/create');
     expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
-  it('navigates to /join when Join Online Game is clicked', async () => {
-    const user = userEvent.setup();
-
+  it('navigates to /join when Join Online Game is clicked', () => {
     render(
       <BrowserRouter>
         <Lobby />
@@ -83,7 +77,7 @@ describe('Lobby', () => {
     );
 
     const joinButton = screen.getByRole('button', { name: /join online game/i });
-    await user.click(joinButton);
+    fireEvent.click(joinButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/join');
     expect(mockNavigate).toHaveBeenCalledTimes(1);
@@ -105,9 +99,7 @@ describe('Lobby', () => {
     expect(joinButton).toHaveAttribute('aria-label');
   });
 
-  it('supports keyboard navigation', async () => {
-    const user = userEvent.setup();
-
+  it('supports keyboard navigation', () => {
     render(
       <BrowserRouter>
         <Lobby />
@@ -121,7 +113,7 @@ describe('Lobby', () => {
     expect(playLocallyButton).toHaveFocus();
 
     // Press Enter
-    await user.keyboard('{Enter}');
+    fireEvent.keyDown(playLocallyButton, { key: 'Enter', code: 'Enter' });
     expect(mockNavigate).toHaveBeenCalledWith('/local');
   });
 
