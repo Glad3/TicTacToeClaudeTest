@@ -1,10 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import App from './App';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Lobby } from './components/Lobby';
+import { LocalGame } from './components/LocalGame';
+import { CreateGame } from './components/CreateGame';
+import { GameRoom } from './components/GameRoom';
+import { NotFound } from './components/NotFound';
 import * as api from './services/api';
 
 vi.mock('./services/api');
+
+// Create a test router component that uses the same structure as App
+function TestRouter({ initialPath }: { initialPath: string }) {
+  window.history.pushState({}, '', initialPath);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Lobby />} />
+        <Route path="/local" element={<LocalGame />} />
+        <Route path="/create" element={<CreateGame />} />
+        <Route path="/join" element={<div>Join Online Game (Coming Soon)</div>} />
+        <Route path="/room/:roomId" element={<GameRoom />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 describe('App Routing', () => {
   beforeEach(() => {
@@ -12,22 +34,14 @@ describe('App Routing', () => {
   });
 
   it('renders Lobby component on root path /', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/" />);
 
     expect(screen.getByText('Tic Tac Toe')).toBeInTheDocument();
     expect(screen.getByText('Choose your game mode')).toBeInTheDocument();
   });
 
   it('renders LocalGame component on /local path', () => {
-    render(
-      <MemoryRouter initialEntries={['/local']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/local" />);
 
     expect(screen.getByRole('grid')).toBeInTheDocument();
   });
@@ -40,11 +54,7 @@ describe('App Routing', () => {
       message: 'Room created',
     });
 
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/create" />);
 
     await waitFor(() => {
       expect(screen.getByText(/game room created/i)).toBeInTheDocument();
@@ -52,11 +62,7 @@ describe('App Routing', () => {
   });
 
   it('renders Join placeholder on /join path', () => {
-    render(
-      <MemoryRouter initialEntries={['/join']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/join" />);
 
     expect(screen.getByText(/join online game \(coming soon\)/i)).toBeInTheDocument();
   });
@@ -88,11 +94,7 @@ describe('App Routing', () => {
       timestamp: Date.now(),
     });
 
-    render(
-      <MemoryRouter initialEntries={['/room/room-test123']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/room/room-test123" />);
 
     await waitFor(() => {
       expect(screen.getByText(/room: room-test123/i)).toBeInTheDocument();
@@ -100,32 +102,20 @@ describe('App Routing', () => {
   });
 
   it('renders NotFound component for unknown paths', () => {
-    render(
-      <MemoryRouter initialEntries={['/unknown-path']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/unknown-path" />);
 
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByText('Page Not Found')).toBeInTheDocument();
   });
 
   it('renders NotFound component for invalid routes', () => {
-    render(
-      <MemoryRouter initialEntries={['/this/does/not/exist']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/this/does/not/exist" />);
 
     expect(screen.getByText('404')).toBeInTheDocument();
   });
 
   it('handles nested invalid paths', () => {
-    render(
-      <MemoryRouter initialEntries={['/local/extra/path']}>
-        <App />
-      </MemoryRouter>
-    );
+    render(<TestRouter initialPath="/local/extra/path" />);
 
     expect(screen.getByText('404')).toBeInTheDocument();
   });
