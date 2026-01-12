@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Lobby } from './components/Lobby';
 import { LocalGame } from './components/LocalGame';
 import { CreateGame } from './components/CreateGame';
+import { JoinGame } from './components/JoinGame';
 import { GameRoom } from './components/GameRoom';
 import { NotFound } from './components/NotFound';
 import * as api from './services/api';
@@ -20,7 +21,7 @@ function TestRouter({ initialPath }: { initialPath: string }) {
         <Route path="/" element={<Lobby />} />
         <Route path="/local" element={<LocalGame />} />
         <Route path="/create" element={<CreateGame />} />
-        <Route path="/join" element={<div>Join Online Game (Coming Soon)</div>} />
+        <Route path="/join" element={<JoinGame />} />
         <Route path="/room/:roomId" element={<GameRoom />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -61,10 +62,11 @@ describe('App Routing', () => {
     });
   });
 
-  it('renders Join placeholder on /join path', () => {
+  it('renders JoinGame component on /join path', () => {
     render(<TestRouter initialPath="/join" />);
 
-    expect(screen.getByText(/join online game \(coming soon\)/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Join Game' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/room code or url/i)).toBeInTheDocument();
   });
 
   it('renders GameRoom component on /room/:roomId path', async () => {
