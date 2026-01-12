@@ -56,3 +56,11 @@ export interface RoomStateResponse {
   room: RoomInfo;
   timestamp: number;
 }
+
+export interface RoomMoveResponse {
+  success: boolean;
+  message?: string;
+  state: GameState;
+  room?: RoomInfo;
+  timestamp?: number;
+}

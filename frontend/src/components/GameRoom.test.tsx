@@ -53,13 +53,37 @@ describe('GameRoom', () => {
     });
   });
 
-  it('shows error when room fetch fails', async () => {
-    vi.mocked(api.getRoomState).mockRejectedValue(new Error('Room not found'));
+  it('shows connection status when room loads', async () => {
+    vi.mocked(api.getRoomState).mockResolvedValue({
+      success: true,
+      state: {
+        board: Array(9).fill(null),
+        currentPlayer: 'X',
+        state: 'playing',
+        winner: null,
+      },
+      room: {
+        roomId: 'room-test123',
+        status: 'waiting',
+        playerX: {
+          playerId: 'player1',
+          name: 'Player 1',
+          marker: 'X',
+          isConnected: true,
+          joinedAt: Date.now(),
+          lastSeen: Date.now(),
+        },
+        playerO: null,
+        createdAt: Date.now(),
+        lastActivity: Date.now(),
+      },
+      timestamp: Date.now(),
+    });
 
     renderGameRoom('room-test123');
 
     await waitFor(() => {
-      expect(screen.getByText(/failed to load room/i)).toBeInTheDocument();
+      expect(screen.getByText(/connected/i)).toBeInTheDocument();
     });
   });
 

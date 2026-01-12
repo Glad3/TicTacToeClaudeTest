@@ -1,0 +1,122 @@
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.turn-indicator--my-turn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.turn-indicator--opponent-turn {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.turn-indicator--game-over {
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+}
+
+.turn-indicator--win {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.turn-indicator--lose {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.turn-indicator--draw {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.turn-indicator__icon {
+  font-size: 2rem;
+}
+
+.turn-indicator__marker {
+  font-size: 1.5rem;
+  font-weight: bold;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.turn-indicator--opponent-turn .turn-indicator__marker {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.turn-indicator__text {
+  flex: 1;
+}
+
+.turn-indicator__hint {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.turn-indicator--my-turn .turn-indicator__hint {
+  animation: pulse-hint 2s infinite;
+}
+
+@keyframes pulse-hint {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .turn-indicator {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .turn-indicator__marker {
+    font-size: 1.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .turn-indicator__icon {
+    font-size: 1.5rem;
+  }
+
+  .turn-indicator__hint {
+    display: none;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .turn-indicator {
+    transition: none;
+  }
+
+  .turn-indicator--my-turn .turn-indicator__hint {
+    animation: none;
+  }
+}
