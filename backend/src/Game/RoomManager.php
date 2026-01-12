@@ -12,12 +12,26 @@ class RoomManager
     private array $rooms = [];
     private const ROOM_TIMEOUT = 3600; // 1 hour in seconds
     private const FINISHED_ROOM_TIMEOUT = 300; // 5 minutes in seconds
+    private string $storageFile;
+
+    public function __construct()
+    {
+        // Store rooms in a temporary file
+        $this->storageFile = sys_get_temp_dir() . '/tictactoe_rooms.json';
+        $this->loadRooms();
+    }
+
+    public function __destruct()
+    {
+        $this->saveRooms();
+    }
 
     public function createRoom(): GameRoom
     {
         $roomId = $this->generateRoomId();
         $room = new GameRoom($roomId);
         $this->rooms[$roomId] = $room;
+        $this->saveRooms();
 
         return $room;
     }
@@ -31,6 +45,7 @@ class RoomManager
     {
         if (isset($this->rooms[$roomId])) {
             unset($this->rooms[$roomId]);
+            $this->saveRooms();
             return true;
         }
 
@@ -98,5 +113,40 @@ class RoomManager
         } while ($this->roomExists($roomId));
 
         return $roomId;
+    }
+
+    private function loadRooms(): void
+    {
+        if (!file_exists($this->storageFile)) {
+            return;
+        }
+
+        $data = file_get_contents($this->storageFile);
+        if ($data === false) {
+            return;
+        }
+
+        $serialized = json_decode($data, true);
+        if (!is_array($serialized)) {
+            return;
+        }
+
+        foreach ($serialized as $roomData) {
+            $room = GameRoom::unserialize($roomData);
+            $this->rooms[$room->getRoomId()] = $room;
+        }
+
+        // Clean up old rooms after loading
+        $this->cleanupInactiveRooms();
+    }
+
+    private function saveRooms(): void
+    {
+        $serialized = [];
+        foreach ($this->rooms as $room) {
+            $serialized[] = $room->toArray();
+        }
+
+        file_put_contents($this->storageFile, json_encode($serialized));
     }
 }
