@@ -32,7 +32,7 @@ describe('JoinGame', () => {
   it('renders join game form', () => {
     renderJoinGame();
 
-    expect(screen.getByText('Join Game')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Join Game' })).toBeInTheDocument();
     expect(screen.getByLabelText(/room code or url/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /join game/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /back to lobby/i })).toBeInTheDocument();
