@@ -1,91 +1,68 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Board } from './Board';
-import { GameStatus } from './GameStatus';
-import * as api from '../services/api';
-import { RoomStateResponse, GameState } from '../types/game';
+import { ConnectionStatus } from './ConnectionStatus';
+import { TurnIndicator } from './TurnIndicator';
+import { useRoomSync } from '../hooks/useRoomSync';
 import '../styles/gameRoom.css';
+
+// Generate or retrieve player ID from session storage
+function getPlayerId(): string {
+  const storageKey = 'tictactoe_player_id';
+  let playerId = sessionStorage.getItem(storageKey);
+  if (!playerId) {
+    playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem(storageKey, playerId);
+  }
+  return playerId;
+}
 
 export function GameRoom() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-
-  const [gameState, setGameState] = useState<GameState>({
-    board: Array(9).fill(null),
-    currentPlayer: 'X',
-    state: 'playing',
-    winner: null,
-  });
-  const [roomState, setRoomState] = useState<RoomStateResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pollingError, setPollingError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Validate roomId format
   useEffect(() => {
     if (!roomId || !roomId.startsWith('room-')) {
-      setError('Invalid room ID format');
-      setIsLoading(false);
+      setValidationError('Invalid room ID format');
     }
   }, [roomId]);
 
-  // Fetch initial room state
-  useEffect(() => {
-    if (!roomId || error) return;
+  const playerId = getPlayerId();
 
-    const fetchRoomState = async () => {
-      try {
-        const response = await api.getRoomState(roomId);
-        setRoomState(response);
-        setGameState(response.state);
-        setIsLoading(false);
-      } catch (err) {
-        setError('Failed to load room. The room may not exist or has expired.');
-        setIsLoading(false);
-      }
-    };
-
-    fetchRoomState();
-  }, [roomId, error]);
-
-  // Poll for room state updates
-  useEffect(() => {
-    if (!roomId || error || isLoading) return;
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await api.getRoomState(roomId);
-        setRoomState(response);
-        setGameState(response.state);
-        setPollingError(null);
-      } catch (err) {
-        setPollingError('Connection lost. Retrying...');
-      }
-    }, 2000);
-
-    return () => clearInterval(pollInterval);
-  }, [roomId, error, isLoading]);
+  const {
+    gameState,
+    roomInfo,
+    syncStatus,
+    error,
+    isMyTurn,
+    myMarker,
+    opponentConnected,
+    lastSyncTime,
+    refresh,
+    makeMove,
+  } = useRoomSync(validationError ? undefined : roomId, playerId, {
+    pollingInterval: 1500,
+    maxRetries: 5,
+  });
 
   const handleCellClick = async (position: number) => {
-    // This will be implemented when we add the room move API
-    // For now, show a placeholder message
-    console.log(`Cell ${position} clicked in room ${roomId}`);
-  };
-
-  const handleReset = () => {
-    navigate('/');
+    if (!isMyTurn) return;
+    await makeMove(position);
   };
 
   const handleGoHome = () => {
     navigate('/');
   };
 
-  if (error) {
+  // Show validation error
+  if (validationError) {
     return (
       <div className="game-room">
         <div className="game-room__error">
           <h2 className="game-room__error-title">Room Error</h2>
-          <p className="game-room__error-message">{error}</p>
+          <p className="game-room__error-message">{validationError}</p>
           <button
             className="game-room__error-button"
             onClick={handleGoHome}
@@ -98,7 +75,36 @@ export function GameRoom() {
     );
   }
 
-  if (isLoading) {
+  // Show connection error
+  if (syncStatus === 'error' && error) {
+    return (
+      <div className="game-room">
+        <div className="game-room__error">
+          <h2 className="game-room__error-title">Connection Error</h2>
+          <p className="game-room__error-message">{error}</p>
+          <div className="game-room__error-actions">
+            <button
+              className="game-room__error-button game-room__error-button--primary"
+              onClick={refresh}
+              aria-label="Retry connection"
+            >
+              Retry
+            </button>
+            <button
+              className="game-room__error-button game-room__error-button--secondary"
+              onClick={handleGoHome}
+              aria-label="Return to lobby"
+            >
+              Return to Lobby
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (syncStatus === 'connecting' && !roomInfo) {
     return (
       <div className="game-room">
         <div className="game-room__loading">
@@ -110,9 +116,13 @@ export function GameRoom() {
   }
 
   const isGameOver = gameState.state === 'won' || gameState.state === 'draw';
-  const playerX = roomState?.room.playerX;
-  const playerO = roomState?.room.playerO;
+  const playerX = roomInfo?.playerX;
+  const playerO = roomInfo?.playerO;
   const bothPlayersPresent = playerX && playerO;
+
+  const opponentName = myMarker === 'X'
+    ? playerO?.name || 'Opponent'
+    : playerX?.name || 'Opponent';
 
   return (
     <div className="game-room">
@@ -122,43 +132,69 @@ export function GameRoom() {
           <p className="game-room__room-id">Room: {roomId}</p>
         </div>
 
-        {pollingError && (
-          <div className="game-room__polling-error" role="alert">
-            {pollingError}
-          </div>
-        )}
+        <ConnectionStatus
+          syncStatus={syncStatus}
+          opponentConnected={opponentConnected}
+          opponentName={opponentName}
+          lastSyncTime={lastSyncTime}
+          onRefresh={refresh}
+        />
 
         {!bothPlayersPresent && (
           <div className="game-room__waiting" role="status">
             <p className="game-room__waiting-text">Waiting for opponent to join...</p>
+            <p className="game-room__waiting-hint">Share the room URL with a friend</p>
           </div>
         )}
 
         {bothPlayersPresent && (
-          <div className="game-room__players">
-            <div className="game-room__player">
-              <span className="game-room__player-marker">X</span>
-              <span className="game-room__player-name">{playerX.name}</span>
+          <>
+            <TurnIndicator
+              currentPlayer={gameState.currentPlayer}
+              myMarker={myMarker}
+              isMyTurn={isMyTurn}
+              gameStatus={gameState.state}
+              winner={gameState.winner}
+              playerXName={playerX.name}
+              playerOName={playerO.name}
+            />
+
+            <div className="game-room__players">
+              <div className={`game-room__player ${myMarker === 'X' ? 'game-room__player--me' : ''}`}>
+                <span className="game-room__player-marker">X</span>
+                <span className="game-room__player-name">
+                  {playerX.name}
+                  {myMarker === 'X' && <span className="game-room__player-you">(You)</span>}
+                </span>
+              </div>
+              <div className={`game-room__player ${myMarker === 'O' ? 'game-room__player--me' : ''}`}>
+                <span className="game-room__player-marker">O</span>
+                <span className="game-room__player-name">
+                  {playerO.name}
+                  {myMarker === 'O' && <span className="game-room__player-you">(You)</span>}
+                </span>
+              </div>
             </div>
-            <div className="game-room__player">
-              <span className="game-room__player-marker">O</span>
-              <span className="game-room__player-name">{playerO.name}</span>
-            </div>
-          </div>
+          </>
         )}
 
         <Board
           board={gameState.board}
           onCellClick={handleCellClick}
-          disabled={isLoading || isGameOver || !bothPlayersPresent}
+          disabled={!isMyTurn || isGameOver || !bothPlayersPresent}
         />
 
-        <GameStatus
-          gameState={gameState}
-          onReset={handleReset}
-          isLoading={isLoading}
-          error={error}
-        />
+        {isGameOver && (
+          <div className="game-room__game-over">
+            <button
+              className="game-room__play-again"
+              onClick={handleGoHome}
+              aria-label="Return to lobby to play again"
+            >
+              Play Again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

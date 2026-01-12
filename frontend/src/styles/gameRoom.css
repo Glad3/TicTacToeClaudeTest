@@ -62,6 +62,12 @@
   font-size: 1rem;
 }
 
+.game-room__waiting-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: #1976d2;
+}
+
 .game-room__players {
   display: flex;
   justify-content: space-around;
@@ -95,6 +101,19 @@
 .game-room__player-name {
   font-weight: 600;
   color: #333;
+}
+
+.game-room__player--me {
+  background-color: rgba(102, 126, 234, 0.1);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.game-room__player-you {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #667eea;
+  margin-left: 0.25rem;
 }
 
 /* Loading state */
@@ -188,6 +207,60 @@
   outline-offset: 2px;
 }
 
+.game-room__error-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.game-room__error-button--primary {
+  margin-top: 0;
+}
+
+.game-room__error-button--secondary {
+  margin-top: 0;
+  background: #6c757d;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.game-room__error-button--secondary:hover {
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6);
+}
+
+/* Game over state */
+.game-room__game-over {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.game-room__play-again {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.game-room__play-again:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.game-room__play-again:active {
+  transform: translateY(0);
+}
+
+.game-room__play-again:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
   .game-room {
@@ -227,6 +300,18 @@
   }
 
   .game-room__error-button:active {
+    transform: none;
+  }
+
+  .game-room__play-again {
+    transition: none;
+  }
+
+  .game-room__play-again:hover {
+    transform: none;
+  }
+
+  .game-room__play-again:active {
     transform: none;
   }
 }
