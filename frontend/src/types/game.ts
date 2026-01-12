@@ -64,3 +64,10 @@ export interface RoomMoveResponse {
   room?: RoomInfo;
   timestamp?: number;
 }
+
+export interface JoinRoomResponse {
+  success: boolean;
+  message: string;
+  roomId?: string;
+  playerMarker?: Player;
+}
