@@ -21,11 +21,6 @@ class RoomManager
         $this->loadRooms();
     }
 
-    public function __destruct()
-    {
-        $this->saveRooms();
-    }
-
     public function createRoom(): GameRoom
     {
         $roomId = $this->generateRoomId();
@@ -122,18 +117,26 @@ class RoomManager
         }
 
         $data = file_get_contents($this->storageFile);
-        if ($data === false) {
+        if ($data === false || trim($data) === '') {
             return;
         }
 
         $serialized = json_decode($data, true);
-        if (!is_array($serialized)) {
+        if (!is_array($serialized) || empty($serialized)) {
             return;
         }
 
         foreach ($serialized as $roomData) {
-            $room = GameRoom::unserialize($roomData);
-            $this->rooms[$room->getRoomId()] = $room;
+            try {
+                if (!is_array($roomData) || !isset($roomData['roomId'])) {
+                    continue;
+                }
+                $room = GameRoom::unserialize($roomData);
+                $this->rooms[$room->getRoomId()] = $room;
+            } catch (\Throwable $e) {
+                // Skip corrupted room data
+                continue;
+            }
         }
 
         // Clean up old rooms after loading
@@ -144,7 +147,7 @@ class RoomManager
     {
         $serialized = [];
         foreach ($this->rooms as $room) {
-            $serialized[] = $room->toArray();
+            $serialized[] = $room->serialize();
         }
 
         file_put_contents($this->storageFile, json_encode($serialized));
