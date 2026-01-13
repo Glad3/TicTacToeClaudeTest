@@ -1,26 +1,26 @@
-import { useGame } from '../hooks/useGame';
+import { useLocalGame } from '../hooks/useLocalGame';
 import { Board } from './Board';
 import { GameStatus } from './GameStatus';
 import '../styles/App.css';
 
 export function LocalGame() {
-  const { gameState, isLoading, error, handleCellClick, handleReset } = useGame();
+  const { gameState, handleCellClick, handleReset } = useLocalGame();
 
   const isGameOver = gameState.state === 'won' || gameState.state === 'draw';
 
   return (
     <div className="app">
-      <h1 className="app__title">Tic Tac Toe</h1>
+      <h1 className="app__title">Tic Tac Toe - Local Game</h1>
       <Board
         board={gameState.board}
         onCellClick={handleCellClick}
-        disabled={isLoading || isGameOver}
+        disabled={isGameOver}
       />
       <GameStatus
         gameState={gameState}
         onReset={handleReset}
-        isLoading={isLoading}
-        error={error}
+        isLoading={false}
+        error={null}
       />
     </div>
   );

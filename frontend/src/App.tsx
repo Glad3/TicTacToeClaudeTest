@@ -9,7 +9,7 @@ import './styles/App.css';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/TicTacToeClaudeTest">
       <Routes>
         <Route path="/" element={<Lobby />} />
         <Route path="/local" element={<LocalGame />} />
