@@ -15,6 +15,12 @@ class RoomManagerTest extends TestCase
 
     protected function setUp(): void
     {
+        // Clear any existing rooms from storage
+        $storageFile = sys_get_temp_dir() . '/tictactoe_rooms.json';
+        if (file_exists($storageFile)) {
+            unlink($storageFile);
+        }
+
         $this->manager = new RoomManager();
     }
 
