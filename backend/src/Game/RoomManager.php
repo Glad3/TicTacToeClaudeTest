@@ -52,6 +52,16 @@ class RoomManager
         return isset($this->rooms[$roomId]);
     }
 
+    /**
+     * Save a specific room to persistent storage
+     * Call this after modifying a room (adding players, making moves, etc.)
+     */
+    public function saveRoom(GameRoom $room): void
+    {
+        $this->rooms[$room->getRoomId()] = $room;
+        $this->saveRooms();
+    }
+
     public function cleanupInactiveRooms(): int
     {
         $now = time();

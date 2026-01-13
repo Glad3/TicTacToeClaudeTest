@@ -169,6 +169,9 @@ class Router
         $player = new PlayerInfo($playerId, $playerName, 'X');
         $room->addPlayer($player);
 
+        // Save room with player added
+        $this->roomManager->saveRoom($room);
+
         http_response_code(201);
         return [
             'success' => true,
@@ -256,6 +259,9 @@ class Router
                 'message' => 'Room is full',
             ];
         }
+
+        // Save room with new player added
+        $this->roomManager->saveRoom($room);
 
         return [
             'success' => true,
@@ -352,6 +358,9 @@ class Router
             $room->setStatus('finished');
         }
 
+        // Save room after move
+        $this->roomManager->saveRoom($room);
+
         return $result;
     }
 
@@ -387,6 +396,9 @@ class Router
         $room->getGame()->resetGame();
         $room->setStatus('playing');
         $room->updateActivity();
+
+        // Save room after reset
+        $this->roomManager->saveRoom($room);
 
         return [
             'success' => true,
