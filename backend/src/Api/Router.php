@@ -28,7 +28,7 @@ class Router
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type');
+        header('Access-Control-Allow-Headers: Content-Type, X-Player-ID');
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             http_response_code(204);
@@ -454,10 +454,19 @@ class Router
     }
 
     /**
-     * Get or generate a unique player ID from the session
+     * Get or generate a unique player ID from the X-Player-ID header
      */
     private function getPlayerId(): string
     {
+        // Try to get player ID from header first
+        // Check both Apache-style and nginx-style header names
+        $playerId = $_SERVER['HTTP_X_PLAYER_ID'] ?? null;
+
+        if ($playerId !== null && $playerId !== '') {
+            return $playerId;
+        }
+
+        // Fallback to session-based ID for backwards compatibility
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

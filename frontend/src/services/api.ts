@@ -4,13 +4,26 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL}/api`
   : '/api';
 
+// Get or create player ID from session storage
+function getPlayerId(): string {
+  const storageKey = 'tictactoe_player_id';
+  let playerId = sessionStorage.getItem(storageKey);
+  if (!playerId) {
+    playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem(storageKey, playerId);
+  }
+  return playerId;
+}
+
 async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
+  const playerId = getPlayerId();
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
+      'X-Player-ID': playerId,
     },
     ...options,
   });
