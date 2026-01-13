@@ -170,17 +170,16 @@ export function useRoomSync(
     isPollingRef.current = true;
 
     const pollInterval = setInterval(async () => {
-      // Skip polling if it's our turn (we don't need updates when we're the one making moves)
-      if (!isMyTurn) {
-        await fetchRoomState();
-      }
+      // Always poll to keep both players in sync
+      // Even if it's our turn, we need to see if opponent made a move
+      await fetchRoomState();
     }, pollingInterval);
 
     return () => {
       clearInterval(pollInterval);
       isPollingRef.current = false;
     };
-  }, [roomId, syncStatus, gameState.state, isMyTurn, pollingInterval, fetchRoomState]);
+  }, [roomId, syncStatus, gameState.state, pollingInterval, fetchRoomState]);
 
   // Reset retry count when connection is restored
   useEffect(() => {
