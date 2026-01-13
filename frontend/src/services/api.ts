@@ -1,6 +1,8 @@
 import { ApiResponse, GameState, MoveRequest, CreateRoomResponse, RoomStateResponse, RoomMoveResponse, JoinRoomResponse } from '../types/game';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : '/api';
 
 async function fetchApi<T>(
   endpoint: string,
