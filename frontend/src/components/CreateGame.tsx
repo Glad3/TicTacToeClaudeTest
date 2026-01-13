@@ -19,8 +19,10 @@ export function CreateGame() {
         const response = await api.createRoom();
         setRoomId(response.roomId);
 
-        // Generate full join URL
-        const fullUrl = `${window.location.origin}/join?room=${response.roomId}`;
+        // Generate full join URL including current path base
+        // This works for both GitHub Pages (/TicTacToeClaudeTest) and local dev
+        const currentUrl = new URL(window.location.href);
+        const fullUrl = `${currentUrl.origin}${currentUrl.pathname.replace(/\/create$/, '')}/join?room=${response.roomId}`;
         setJoinUrl(fullUrl);
 
         setIsCreating(false);
