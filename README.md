@@ -162,3 +162,66 @@ npm run build
 cd frontend
 npm run type-check
 ```
+
+## Deployment to GitHub Pages
+
+This project can be deployed to GitHub Pages for the **frontend only** (local game mode). The multiplayer features require a backend server and won't work on GitHub Pages.
+
+### Automatic Deployment
+
+The repository includes a GitHub Actions workflow that automatically deploys to GitHub Pages on every push to `main`.
+
+**Setup Steps:**
+
+1. **Enable GitHub Pages in your repository:**
+   - Go to your repository on GitHub
+   - Navigate to **Settings** → **Pages**
+   - Under "Source", select **GitHub Actions**
+
+2. **Push to main branch:**
+   ```bash
+   git push origin main
+   ```
+
+3. **Wait for deployment:**
+   - Go to the **Actions** tab in your repository
+   - Wait for the "Deploy to GitHub Pages" workflow to complete (usually 1-2 minutes)
+
+4. **Access your game:**
+   - Your game will be available at: `https://YOUR_USERNAME.github.io/TicTacToeClaudeTest/`
+   - Or check the URL in Settings → Pages
+
+### Manual Deployment
+
+To deploy manually:
+
+```bash
+cd frontend
+npm install
+npm run build
+
+# The build output will be in frontend/dist/
+# Upload the contents of frontend/dist/ to GitHub Pages
+```
+
+### Important Notes
+
+- **Only local game mode works on GitHub Pages** (single-player)
+- **Multiplayer features require a PHP backend server** which GitHub Pages doesn't support
+- For full multiplayer functionality, consider deploying to:
+  - **Heroku** (with PHP buildpack)
+  - **Railway.app**
+  - **DigitalOcean App Platform**
+  - **AWS EC2** or **AWS Elastic Beanstalk**
+  - Any **VPS with PHP support**
+
+### Alternative: Full Deployment Options
+
+**Option 1: Deploy backend to a hosting service**
+- Deploy backend PHP to a service like Railway, Heroku, or a VPS
+- Update `frontend/vite.config.ts` proxy to point to your backend URL
+- Deploy frontend to GitHub Pages
+
+**Option 2: Deploy everything together**
+- Use a full-stack hosting service like Heroku, Railway, or DigitalOcean
+- This gives you both local AND multiplayer functionality
