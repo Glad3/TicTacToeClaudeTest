@@ -396,10 +396,8 @@ class Router
             ];
         }
 
-        // Reset the game
-        $room->getGame()->resetGame();
-        $room->setStatus('playing');
-        $room->updateActivity();
+        // Reset the game with alternating starter
+        $room->resetForRematch();
 
         // Save room after reset
         $this->roomManager->saveRoom($room);
@@ -408,6 +406,8 @@ class Router
             'success' => true,
             'message' => 'Game reset successfully',
             'state' => $room->getGame()->getGameState(),
+            'room' => $room->toArray(),
+            'timestamp' => time(),
         ];
     }
 

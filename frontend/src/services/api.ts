@@ -80,3 +80,9 @@ export async function joinRoom(roomId: string): Promise<JoinRoomResponse> {
     method: 'POST',
   });
 }
+
+export async function resetRoom(roomId: string): Promise<RoomMoveResponse> {
+  return fetchApi<RoomMoveResponse>(`/rooms/${roomId}/reset`, {
+    method: 'POST',
+  });
+}

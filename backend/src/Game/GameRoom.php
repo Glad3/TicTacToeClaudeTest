@@ -16,6 +16,7 @@ class GameRoom
     private int $createdAt;
     private int $lastActivity;
     private string $status; // 'waiting', 'playing', 'finished'
+    private string $nextStarter; // 'X' or 'O' - who starts the next game
 
     public function __construct(string $roomId)
     {
@@ -24,6 +25,7 @@ class GameRoom
         $this->createdAt = time();
         $this->lastActivity = time();
         $this->status = 'waiting';
+        $this->nextStarter = 'X'; // X starts the first game
     }
 
     public function getRoomId(): string
@@ -164,6 +166,22 @@ class GameRoom
         return $this->game->canPlayerMove($marker);
     }
 
+    /**
+     * Reset the game for a rematch, alternating who goes first
+     */
+    public function resetForRematch(): void
+    {
+        // Determine who should start next (alternate from last game)
+        $this->game->resetGame($this->nextStarter);
+
+        // Alternate the starter for next time
+        $this->nextStarter = $this->nextStarter === 'X' ? 'O' : 'X';
+
+        // Update room status
+        $this->status = 'playing';
+        $this->updateActivity();
+    }
+
     public function toArray(): array
     {
         return [
@@ -186,6 +204,7 @@ class GameRoom
             'createdAt' => $this->createdAt,
             'lastActivity' => $this->lastActivity,
             'status' => $this->status,
+            'nextStarter' => $this->nextStarter,
         ];
     }
 
@@ -205,6 +224,7 @@ class GameRoom
         $room->createdAt = $data['createdAt'];
         $room->lastActivity = $data['lastActivity'];
         $room->status = $data['status'];
+        $room->nextStarter = $data['nextStarter'] ?? 'X'; // Default to X for backwards compatibility
 
         return $room;
     }

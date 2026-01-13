@@ -4,6 +4,7 @@ import { Board } from './Board';
 import { ConnectionStatus } from './ConnectionStatus';
 import { TurnIndicator } from './TurnIndicator';
 import { useRoomSync } from '../hooks/useRoomSync';
+import * as api from '../services/api';
 import '../styles/gameRoom.css';
 
 // Generate or retrieve player ID from session storage
@@ -50,6 +51,17 @@ export function GameRoom() {
   const handleCellClick = async (position: number) => {
     if (!isMyTurn) return;
     await makeMove(position);
+  };
+
+  const handlePlayAgain = async () => {
+    if (!roomId) return;
+    try {
+      await api.resetRoom(roomId);
+      // Trigger immediate refresh to see the reset board
+      await refresh();
+    } catch (err) {
+      console.error('Failed to reset game:', err);
+    }
   };
 
   const handleGoHome = () => {
@@ -188,10 +200,17 @@ export function GameRoom() {
           <div className="game-room__game-over">
             <button
               className="game-room__play-again"
-              onClick={handleGoHome}
-              aria-label="Return to lobby to play again"
+              onClick={handlePlayAgain}
+              aria-label="Play again in the same room"
             >
               Play Again
+            </button>
+            <button
+              className="game-room__go-home"
+              onClick={handleGoHome}
+              aria-label="Return to lobby"
+            >
+              Back to Lobby
             </button>
           </div>
         )}

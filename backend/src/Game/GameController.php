@@ -35,10 +35,10 @@ class GameController
         $this->resetGame();
     }
 
-    public function resetGame(): void
+    public function resetGame(?string $startingPlayer = null): void
     {
         $this->board->reset();
-        $this->currentPlayer = Player::MARKER_X;
+        $this->currentPlayer = $startingPlayer ?? Player::MARKER_X;
         $this->state = self::STATE_PLAYING;
         $this->winner = null;
     }
