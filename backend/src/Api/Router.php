@@ -361,6 +361,10 @@ class Router
         // Save room after move
         $this->roomManager->saveRoom($room);
 
+        // Add room info and timestamp to response
+        $result['room'] = $room->toArray();
+        $result['timestamp'] = time();
+
         return $result;
     }
 
