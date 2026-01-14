@@ -22,7 +22,7 @@ export function JoinGame() {
     const roomId = extractRoomId(input);
 
     if (!roomId) {
-      setError('Invalid room code or URL format. Please enter a valid room code (e.g., room-abc123) or URL.');
+      setError('Invalid room code. Please enter a valid room code (e.g., room-abc123).');
       return;
     }
 
@@ -95,7 +95,7 @@ export function JoinGame() {
         <form className="join-game__form" onSubmit={handleSubmit}>
           <div className="join-game__input-group">
             <label htmlFor="room-input" className="join-game__label">
-              Room Code or URL
+              Room Code
             </label>
             <input
               id="room-input"
@@ -103,7 +103,7 @@ export function JoinGame() {
               className="join-game__input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g., room-abc123 or https://example.com/room/room-abc123"
+              placeholder="e.g., room-abc123"
               disabled={isJoining}
               aria-describedby={error ? 'join-error' : undefined}
               aria-invalid={error ? true : undefined}
