@@ -207,6 +207,34 @@
   outline-offset: 2px;
 }
 
+.game-room__exit-button {
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #eaeaea;
+  background-color: #444;
+  border: 2px solid #666;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.game-room__exit-button:hover {
+  background-color: #555;
+  border-color: #777;
+  transform: translateY(-2px);
+}
+
+.game-room__exit-button:active {
+  transform: translateY(0);
+}
+
+.game-room__exit-button:focus-visible {
+  outline: 3px solid #666;
+  outline-offset: 2px;
+}
+
 .game-room__error-actions {
   display: flex;
   gap: 1rem;

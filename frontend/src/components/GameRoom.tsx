@@ -205,15 +205,16 @@ export function GameRoom() {
             >
               Play Again
             </button>
-            <button
-              className="game-room__go-home"
-              onClick={handleGoHome}
-              aria-label="Return to lobby"
-            >
-              Back to Lobby
-            </button>
           </div>
         )}
+
+        <button
+          className="game-room__exit-button"
+          onClick={handleGoHome}
+          aria-label="Exit to main menu"
+        >
+          Exit to Menu
+        </button>
       </div>
     </div>
   );

@@ -13,9 +13,37 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.app__exit-button {
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #eaeaea;
+  background-color: #444;
+  border: 2px solid #666;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app__exit-button:hover {
+  background-color: #555;
+  border-color: #777;
+  transform: translateY(-2px);
+}
+
+.app__exit-button:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 400px) {
   .app__title {
     font-size: 2rem;
     margin-bottom: 16px;
+  }
+
+  .app__exit-button {
+    padding: 10px 24px;
+    font-size: 0.9rem;
   }
 }
