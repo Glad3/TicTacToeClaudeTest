@@ -289,6 +289,31 @@
   outline-offset: 2px;
 }
 
+.game-room__play-again--voted {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.game-room__play-again--voted:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+}
+
+.game-room__waiting-vote {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+.game-room__resetting {
+  font-size: 1.1rem;
+  color: #667eea;
+  font-weight: 600;
+  margin: 0;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
   .game-room {

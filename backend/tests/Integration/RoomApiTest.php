@@ -436,7 +436,25 @@ class RoomApiTest extends TestCase
 
         stream_wrapper_restore('php');
 
-        // Reset the room
+        // Player 1 votes for reset
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = "/api/rooms/{$roomId}/reset";
+
+        ob_start();
+        $this->router->handleRequest();
+        $output = ob_get_clean();
+        $firstVoteResponse = json_decode($output, true);
+
+        $this->assertTrue($firstVoteResponse['success']);
+        $this->assertEquals('Waiting for other player to vote for rematch', $firstVoteResponse['message']);
+        $this->assertFalse($firstVoteResponse['bothVoted']);
+
+        session_destroy();
+
+        // Player 2 votes for reset
+        session_start();
+        $_SESSION['player_id'] = 'player2';
+
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['REQUEST_URI'] = "/api/rooms/{$roomId}/reset";
 
@@ -447,6 +465,7 @@ class RoomApiTest extends TestCase
 
         $this->assertTrue($resetResponse['success']);
         $this->assertEquals('Game reset successfully', $resetResponse['message']);
+        $this->assertTrue($resetResponse['bothVoted']);
 
         // Verify board is cleared
         $board = $resetResponse['state']['board'];

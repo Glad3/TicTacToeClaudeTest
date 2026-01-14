@@ -17,6 +17,7 @@ class GameRoom
     private int $lastActivity;
     private string $status; // 'waiting', 'playing', 'finished'
     private string $nextStarter; // 'X' or 'O' - who starts the next game
+    private array $rematchVotes = []; // Array of player IDs who voted for rematch
 
     public function __construct(string $roomId)
     {
@@ -26,6 +27,7 @@ class GameRoom
         $this->lastActivity = time();
         $this->status = 'waiting';
         $this->nextStarter = 'X'; // X starts the first game
+        $this->rematchVotes = [];
     }
 
     public function getRoomId(): string
@@ -167,6 +169,38 @@ class GameRoom
     }
 
     /**
+     * Vote for a rematch. Returns true if both players have voted and game should reset.
+     */
+    public function voteForRematch(string $playerId): bool
+    {
+        // Add player to votes if not already present
+        if (!in_array($playerId, $this->rematchVotes, true)) {
+            $this->rematchVotes[] = $playerId;
+        }
+
+        $this->updateActivity();
+
+        // Check if both players have voted
+        return count($this->rematchVotes) >= 2;
+    }
+
+    /**
+     * Check if a player has voted for rematch
+     */
+    public function hasVotedForRematch(string $playerId): bool
+    {
+        return in_array($playerId, $this->rematchVotes, true);
+    }
+
+    /**
+     * Get rematch vote status
+     */
+    public function getRematchVotes(): array
+    {
+        return $this->rematchVotes;
+    }
+
+    /**
      * Reset the game for a rematch, alternating who goes first
      */
     public function resetForRematch(): void
@@ -177,8 +211,9 @@ class GameRoom
         // Alternate the starter for next time
         $this->nextStarter = $this->nextStarter === 'X' ? 'O' : 'X';
 
-        // Update room status
+        // Update room status and clear votes
         $this->status = 'playing';
+        $this->rematchVotes = [];
         $this->updateActivity();
     }
 
@@ -191,6 +226,7 @@ class GameRoom
             'playerO' => $this->playerO?->toArray(),
             'createdAt' => $this->createdAt,
             'lastActivity' => $this->lastActivity,
+            'rematchVotes' => $this->rematchVotes,
         ];
     }
 
@@ -205,6 +241,7 @@ class GameRoom
             'lastActivity' => $this->lastActivity,
             'status' => $this->status,
             'nextStarter' => $this->nextStarter,
+            'rematchVotes' => $this->rematchVotes,
         ];
     }
 
@@ -225,6 +262,7 @@ class GameRoom
         $room->lastActivity = $data['lastActivity'];
         $room->status = $data['status'];
         $room->nextStarter = $data['nextStarter'] ?? 'X'; // Default to X for backwards compatibility
+        $room->rematchVotes = $data['rematchVotes'] ?? []; // Default to empty array
 
         return $room;
     }

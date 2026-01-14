@@ -396,19 +396,35 @@ class Router
             ];
         }
 
-        // Reset the game with alternating starter
-        $room->resetForRematch();
+        // Vote for rematch
+        $bothPlayersVoted = $room->voteForRematch($playerId);
 
-        // Save room after reset
-        $this->roomManager->saveRoom($room);
+        if ($bothPlayersVoted) {
+            // Both players voted, reset the game
+            $room->resetForRematch();
+            $this->roomManager->saveRoom($room);
 
-        return [
-            'success' => true,
-            'message' => 'Game reset successfully',
-            'state' => $room->getGame()->getGameState(),
-            'room' => $room->toArray(),
-            'timestamp' => time(),
-        ];
+            return [
+                'success' => true,
+                'message' => 'Game reset successfully',
+                'state' => $room->getGame()->getGameState(),
+                'room' => $room->toArray(),
+                'timestamp' => time(),
+                'bothVoted' => true,
+            ];
+        } else {
+            // Only one player voted so far, save and wait
+            $this->roomManager->saveRoom($room);
+
+            return [
+                'success' => true,
+                'message' => 'Waiting for other player to vote for rematch',
+                'state' => $room->getGame()->getGameState(),
+                'room' => $room->toArray(),
+                'timestamp' => time(),
+                'bothVoted' => false,
+            ];
+        }
     }
 
     /**

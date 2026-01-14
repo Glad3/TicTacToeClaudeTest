@@ -41,6 +41,7 @@ export interface RoomInfo {
   playerO: PlayerInfo | null;
   createdAt: number;
   lastActivity: number;
+  rematchVotes?: string[]; // Array of player IDs who voted for rematch
 }
 
 export interface CreateRoomResponse {

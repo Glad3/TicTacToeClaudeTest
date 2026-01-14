@@ -132,6 +132,11 @@ export function GameRoom() {
   const playerO = roomInfo?.playerO;
   const bothPlayersPresent = playerX && playerO;
 
+  // Check rematch voting status
+  const hasVoted = roomInfo?.rematchVotes?.includes(playerId) ?? false;
+  const opponentVoted = roomInfo?.rematchVotes?.find(id => id !== playerId) !== undefined;
+  const bothVoted = (roomInfo?.rematchVotes?.length ?? 0) >= 2;
+
   const opponentName = myMarker === 'X'
     ? playerO?.name || 'Opponent'
     : playerX?.name || 'Opponent';
@@ -198,13 +203,23 @@ export function GameRoom() {
 
         {isGameOver && (
           <div className="game-room__game-over">
-            <button
-              className="game-room__play-again"
-              onClick={handlePlayAgain}
-              aria-label="Play again in the same room"
-            >
-              Play Again
-            </button>
+            {!bothVoted ? (
+              <>
+                <button
+                  className={`game-room__play-again ${hasVoted ? 'game-room__play-again--voted' : ''}`}
+                  onClick={handlePlayAgain}
+                  disabled={hasVoted}
+                  aria-label="Play again in the same room"
+                >
+                  {hasVoted ? '✓ Voted for Rematch' : 'Play Again'}
+                </button>
+                {hasVoted && opponentVoted === false && (
+                  <p className="game-room__waiting-vote">Waiting for opponent...</p>
+                )}
+              </>
+            ) : (
+              <p className="game-room__resetting">Starting new game...</p>
+            )}
           </div>
         )}
 
