@@ -161,9 +161,6 @@ export function useRoomSync(
   useEffect(() => {
     if (!roomId || syncStatus === 'error') return;
 
-    // Don't poll if game is over
-    if (gameState.state !== 'playing') return;
-
     // Don't poll if we're already polling
     if (isPollingRef.current) return;
 
@@ -171,7 +168,7 @@ export function useRoomSync(
 
     const pollInterval = setInterval(async () => {
       // Always poll to keep both players in sync
-      // Even if it's our turn, we need to see if opponent made a move
+      // This includes when game is over to see rematch votes
       await fetchRoomState();
     }, pollingInterval);
 
@@ -179,7 +176,7 @@ export function useRoomSync(
       clearInterval(pollInterval);
       isPollingRef.current = false;
     };
-  }, [roomId, syncStatus, gameState.state, pollingInterval, fetchRoomState]);
+  }, [roomId, syncStatus, pollingInterval, fetchRoomState]);
 
   // Reset retry count when connection is restored
   useEffect(() => {

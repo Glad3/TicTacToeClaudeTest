@@ -26,7 +26,7 @@ class GameRoom
         $this->createdAt = time();
         $this->lastActivity = time();
         $this->status = 'waiting';
-        $this->nextStarter = 'X'; // X starts the first game
+        $this->nextStarter = 'O'; // After first game (where X starts), O should start next
         $this->rematchVotes = [];
     }
 
